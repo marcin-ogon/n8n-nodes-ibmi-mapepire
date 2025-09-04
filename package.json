@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-ibmi-mapepire",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "n8n community nodes to run IBM i SQL and CL commands via Mapepire",
   "keywords": [
     "n8n",
@@ -22,11 +22,11 @@
     "dev": "tsc -w -p tsconfig.build.json",
     "lint": "eslint 'src/**/*.ts'",
     "prepare": "npm run build",
-  "test": "vitest run",
-  "test:watch": "vitest",
-  "release:patch": "node scripts/release.mjs patch",
-  "release:minor": "node scripts/release.mjs minor",
-  "release:major": "node scripts/release.mjs major"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "release:patch": "node scripts/release.mjs patch",
+    "release:minor": "node scripts/release.mjs minor",
+    "release:major": "node scripts/release.mjs major"
   },
   "files": [
     "dist"

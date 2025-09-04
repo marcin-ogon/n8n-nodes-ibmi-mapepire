@@ -1,5 +1,9 @@
 # Changelog
 
+
+## 0.2.1 - 2025-09-04
+- Internal changes only.
+
 ## Unreleased
 - No unreleased changes.
 
