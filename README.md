@@ -8,6 +8,10 @@ Custom n8n community node to run IBM i Db2 SQL queries and CL commands through a
 - Optionally return terse results
 - Auto-close queries when done
 - Support for self-signed certs or custom CA
+- Optional connection reuse per execution for performance
+- Prepared / parameterized SQL with JSON parameters
+- Toggle inclusion of metadata
+- Improved error capture with continueOnFail
 
 ## Credentials
 Provide Mapepire connection details (host, port, user, password). Toggle `Ignore Unauthorized TLS` for self-signed certs or paste a CA certificate.
@@ -106,10 +110,32 @@ npm run test:watch
 
 Tests use Vitest and mock the Mapepire SQLJob class to avoid real IBM i connections.
 
-## TODO / Next Steps
-- Add prepared statements with parameters input
-- Connection pooling option
-- Error surface improvements
+## Changelog (summary)
+See CHANGELOG.md for details.
+
+### Implemented Enhancements
+- Prepared statements / parameters (Additional Fields: Use Parameters + Parameters (JSON))
+- Reuse Connection option to keep a single SQLJob for all incoming items
+- Include Metadata toggle to reduce payload size
+- Improved error surface (structured error object when workflow uses continueOnFail)
+
+## Usage Notes
+### Parameters JSON
+Provide either an array or object:
+```
+["ACME", 42]
+```
+or
+```
+{"CUST_ID": 42, "STATUS": "A"}
+```
+The exact parameter binding semantics depend on @ibm/mapepire-js version; ensure your SQL uses the compatible placeholder style.
+
+### Reuse Connection
+Enable when many input items target the same credentials to reduce connection overhead. Connection closes automatically after the last item.
+
+### Metadata Toggle
+Disable Include Metadata to omit column metadata & update count for lighter outputs (rows only).
 
 ## License
 MIT

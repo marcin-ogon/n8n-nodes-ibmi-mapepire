@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import type { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription, IDataObject } from 'n8n-workflow';
 import { SQLJob } from '@ibm/mapepire-js';
 import type { DaemonServer, QueryOptions } from '@ibm/mapepire-js/dist/src/types';
 
@@ -82,6 +82,57 @@ export class Mapepire implements INodeType {
 						default: false,
 						description: 'Return compact rows without metadata for each column where supported',
 					},
+					{
+						displayName: 'Include Metadata',
+						name: 'includeMetadata',
+						type: 'boolean',
+						default: true,
+						description: 'Include column metadata and update count in node output',
+					},
+					{
+						displayName: 'Reuse Connection',
+						name: 'reuseConnection',
+						type: 'boolean',
+						default: false,
+						description: 'Use a single SQLJob connection for all input items (performance optimization)',
+					},
+					{
+						displayName: 'Use Parameters',
+						name: 'useParameters',
+						type: 'boolean',
+						default: false,
+						description: 'Enable prepared/parameterized execution for the SQL. Provide parameters JSON below.',
+						displayOptions: { show: { '/mode': ['sql'] } },
+					},
+					{
+						displayName: 'Parameters (JSON)',
+						name: 'parametersJson',
+						type: 'string',
+						typeOptions: { rows: 3 },
+						default: '',
+						description: 'Array or object of parameter values for the SQL statement (e.g. ["A", 123] or {"ID":1}).',
+						displayOptions: { show: { useParameters: [true], '/mode': ['sql'] } },
+					},
+					{
+						displayName: 'Query Timeout (ms)',
+						name: 'queryTimeout',
+						type: 'number',
+						default: 0,
+						description: 'Abort the query if it runs longer than this (0 = no timeout)',
+						displayOptions: { show: { '/mode': ['sql'] } },
+					},
+					{
+						displayName: 'Output Mode',
+						name: 'outputMode',
+						type: 'options',
+						default: 'single',
+						options: [
+							{ name: 'Single Item (All Rows Array)', value: 'single' },
+							{ name: 'One Item Per Row', value: 'perRow' },
+						],
+						description: 'How to structure the node output items',
+						displayOptions: { show: { '/mode': ['sql'] } },
+					},
 				],
 			},
 		]
@@ -106,25 +157,80 @@ export class Mapepire implements INodeType {
 			ca: credentials.ca ? (credentials.ca as string) : undefined,
 		};
 
+
+		// Helper for normalizing error objects without using 'any'
+		const normalizeError = (e: unknown) => {
+			const err = e as {
+				message?: string;
+				name?: string;
+				code?: string | number;
+				sqlcode?: string | number;
+				sqlState?: string;
+				stack?: string;
+			};
+			return {
+				message: err?.message || String(e),
+				name: err?.name,
+				code: err?.code ?? err?.sqlcode,
+				sqlState: err?.sqlState,
+				stack: err?.stack,
+			};
+		};
+
+		const reuseConnectionFirstItemAdditional = this.getNodeParameter('additionalFields', 0, {}) as { reuseConnection?: boolean };
+		const reuseConnection = !!reuseConnectionFirstItemAdditional.reuseConnection;
+		let sharedJob: SQLJob | null = null;
+
+		const getJob = async () => {
+			if (reuseConnection) {
+				if (!sharedJob) {
+					sharedJob = new SQLJob();
+					await sharedJob.connect(creds);
+				}
+				return sharedJob;
+			}
+			const job = new SQLJob();
+			await job.connect(creds);
+			return job;
+		};
+
 		for (let i = 0; i < items.length; i++) {
 			const mode = this.getNodeParameter('mode', i) as string;
 			const fetchSize = this.getNodeParameter('fetchSize', i, 100) as number;
-			// Additional optional flags supplied by user
-			const additional = this.getNodeParameter('additionalFields', i, {}) as { isTerseResults?: boolean };
+			const additional = this.getNodeParameter('additionalFields', i, {}) as {
+				isTerseResults?: boolean;
+				includeMetadata?: boolean;
+				useParameters?: boolean;
+				parametersJson?: string;
+				queryTimeout?: number;
+				outputMode?: 'single' | 'perRow';
+			};
 
-			// NOTE: A new SQLJob per item; consider batching or pooling later for performance.
-			const job = new SQLJob();
-			await job.connect(creds);
+			const job = await getJob();
 			try {
 				if (mode === 'sql') {
 					const sql = this.getNodeParameter('sql', i) as string;
 
-					// Map n8n option to Mapepire query options.
-					const queryOpts: QueryOptions = { isTerseResults: additional.isTerseResults };
-					// Result row shape can vary (object map or terse array); use unknown for type safety.
-					const query = job.query<unknown[]>(sql, queryOpts);
+					// Assemble query options; allow parameters injection if provided.
+					const queryOpts: QueryOptions & { parameters?: unknown[] | Record<string, unknown>; timeout?: number } = {
+						isTerseResults: additional.isTerseResults,
+					};
+					if (additional.queryTimeout && additional.queryTimeout > 0) {
+						queryOpts.timeout = additional.queryTimeout;
+					}
+					if (additional.useParameters && additional.parametersJson) {
+						try {
+							const parsed = JSON.parse(additional.parametersJson);
+							if (typeof parsed !== 'object' || parsed === null) {
+								throw new Error('Parameters JSON must be an array or object');
+							}
+							queryOpts.parameters = parsed;
+						} catch (err) {
+							throw new Error(`Invalid Parameters JSON: ${(err as Error).message}`);
+						}
+					}
 
-					// Initial execute with fetchSize; subsequent pages via fetchMore until done.
+					const query = job.query<unknown[]>(sql, queryOpts as QueryOptions);
 					let res = await query.execute(fetchSize);
 					const rows: unknown[] = [];
 					rows.push(...res.data);
@@ -133,16 +239,22 @@ export class Mapepire implements INodeType {
 						rows.push(...res.data);
 					}
 
-					// Include metadata & update count for client-side decision making.
-					returnItems.push({
-						json: {
-							rows,
-							metadata: res.metadata,
-							updateCount: res.update_count,
-						},
-					});
+					const payload: IDataObject = { rows } as IDataObject; // rows may contain primitives or objects
+					if (additional.includeMetadata !== false) {
+						(payload as IDataObject).metadata = res.metadata as unknown as IDataObject; // treat metadata as opaque
+						(payload as IDataObject).updateCount = res.update_count as unknown as IDataObject; // numeric value acceptable
+					}
+						if (additional.outputMode === 'perRow') {
+							for (const r of rows) {
+								const rowItem: IDataObject = additional.includeMetadata !== false
+									? { row: r as unknown as IDataObject, metadata: res.metadata as unknown as IDataObject }
+									: { row: r as unknown as IDataObject };
+								returnItems.push({ json: rowItem });
+							}
+						} else {
+						returnItems.push({ json: payload });
+					}
 				} else {
-					// CL command mode: single execute, result shape differs from SQL.
 					const cl = this.getNodeParameter('cl', i) as string;
 					const query = await job.clcommand(cl);
 					const res = await query.execute();
@@ -154,10 +266,21 @@ export class Mapepire implements INodeType {
 						},
 					});
 				}
+			} catch (err) {
+				if (this.continueOnFail()) {
+					returnItems.push({ json: { error: normalizeError(err) } });
+					continue;
+				}
+				throw err;
 			} finally {
-				// Ensure job termination even if an error occurs above.
-				await job.close();
+				if (!reuseConnection) {
+					await job.close();
+				}
 			}
+		}
+
+		if (reuseConnection && sharedJob) {
+			await (sharedJob as SQLJob).close();
 		}
 		return [returnItems];
 	}
