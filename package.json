@@ -22,8 +22,11 @@
     "dev": "tsc -w -p tsconfig.build.json",
     "lint": "eslint 'src/**/*.ts'",
     "prepare": "npm run build",
-    "test": "vitest run",
-    "test:watch": "vitest"
+  "test": "vitest run",
+  "test:watch": "vitest",
+  "release:patch": "node scripts/release.mjs patch",
+  "release:minor": "node scripts/release.mjs minor",
+  "release:major": "node scripts/release.mjs major"
   },
   "files": [
     "dist"

@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- No unreleased changes.
+
 ## 0.2.0 - 2025-09-04
 ### Added
 - Prepared / parameterized SQL execution (`Use Parameters` + `Parameters (JSON)`).
