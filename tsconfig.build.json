@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+  "sourceMap": true,
+  // Force CommonJS output for n8n compatibility while tests use ESNext modules.
+  "module": "CommonJS"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

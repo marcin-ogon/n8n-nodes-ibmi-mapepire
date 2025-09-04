@@ -1,0 +1,63 @@
+{
+  "name": "n8n-nodes-ibmi-mapepire",
+  "version": "0.1.0",
+  "description": "n8n community nodes to run IBM i SQL and CL commands via Mapepire",
+  "keywords": [
+    "n8n",
+    "ibmi",
+    "sql",
+    "cl",
+    "mapepire"
+  ],
+  "license": "MIT",
+  "author": "Marcin Ogoń",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your/repo.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -w -p tsconfig.build.json",
+    "lint": "eslint 'src/**/*.ts'",
+    "prepare": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@ibm/mapepire-js": "^0.6.0",
+    "n8n-workflow": "^1.82.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.34.0",
+    "n8n-core": "^1.47.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.4",
+    "vitest": "^3.2.4"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      {
+        "name": "mapepireCredentials",
+        "type": "mapepireApi"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Mapepire",
+        "type": "mapepireNode"
+      }
+    ]
+  }
+}

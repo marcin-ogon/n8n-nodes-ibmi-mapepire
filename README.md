@@ -1,0 +1,115 @@
+# n8n-nodes-ibmi-mapepire
+
+Custom n8n community node to run IBM i Db2 SQL queries and CL commands through a Mapepire server using `@ibm/mapepire-js`.
+
+## Features
+- Execute SQL queries with paging until completion
+- Run CL commands
+- Optionally return terse results
+- Auto-close queries when done
+- Support for self-signed certs or custom CA
+
+## Credentials
+Provide Mapepire connection details (host, port, user, password). Toggle `Ignore Unauthorized TLS` for self-signed certs or paste a CA certificate.
+
+## Development
+Install dependencies and build:
+
+```bash
+npm install
+npm run build
+```
+
+Link into a local n8n for testing:
+
+```bash
+# Inside this project directory
+npm link
+# In your n8n installation directory
+npm link n8n-nodes-ibmi-mapepire
+```
+
+Restart n8n. The node appears as `Mapepire`.
+
+## Running n8n with this Node
+
+### Option 1: Use N8N_CUSTOM_EXTENSIONS (no npm link)
+```bash
+# From project root (ensure build done)
+npm run build
+
+# Run n8n immediately using npx
+N8N_CUSTOM_EXTENSIONS="$(pwd)" npx n8n
+# Or if n8n is globally installed:
+export N8N_CUSTOM_EXTENSIONS="$(pwd)"
+n8n start
+```
+
+### Option 2: Classic npm link (already shown above)
+After linking, just start n8n normally:
+```bash
+n8n start
+```
+
+### Option 3: Docker (ephemeral)
+```bash
+npm run build
+docker run -it --rm \
+  -p 5678:5678 \
+  -v ~/.n8n:/home/node/.n8n \
+  -v "$(pwd)":/data/custom-node \
+  -e N8N_CUSTOM_EXTENSIONS=/data/custom-node \
+  n8nio/n8n
+```
+
+### Option 4: docker-compose snippet
+```yaml
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_CUSTOM_EXTENSIONS=/data/custom-node
+    volumes:
+      - ~/.n8n:/home/node/.n8n
+      - ./n8n-nodes-ibmi-mapepire:/data/custom-node
+```
+
+Then:
+```bash
+docker compose up
+```
+
+### Verify
+Open http://localhost:5678
+Create a new workflow
+Search for the node named: Mapepire
+
+If it does not appear:
+- Confirm build artifacts exist (dist folder)
+- Ensure environment variable path is correct
+- Restart n8n after changes
+
+## Testing
+
+Install deps and run:
+```bash
+npm install
+npm run test
+```
+
+Watch mode:
+```bash
+npm run test:watch
+```
+
+Tests use Vitest and mock the Mapepire SQLJob class to avoid real IBM i connections.
+
+## TODO / Next Steps
+- Add prepared statements with parameters input
+- Connection pooling option
+- Error surface improvements
+
+## License
+MIT

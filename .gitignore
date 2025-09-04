@@ -1,0 +1,53 @@
+### Node dependencies
+node_modules/
+
+### Build outputs
+dist/
+build/
+lib/
+
+### TypeScript incremental build info
+*.tsbuildinfo
+
+### Coverage / test artifacts
+coverage/
+.nyc_output/
+.vitest/
+*.lcov
+
+### Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+### Caches
+.cache/
+.eslintcache
+
+### Environment files (keep example)
+.env
+.env.*
+!.env.example
+
+### Editor & IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+### macOS / Windows
+.DS_Store
+Thumbs.db
+
+### n8n local data (exclude sources under src)
+.n8n/
+
+### Misc
+*.tgz
+*.bak
+*.orig
+
