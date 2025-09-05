@@ -8,7 +8,15 @@
 - Added Prettier configuration and automatic formatting integration in release workflow to enforce consistent code style.
 
 ## Unreleased
-- No unreleased changes.
+
+### Changed
+
+- Release workflow now generates GitHub Release notes directly from matching section in `CHANGELOG.md`.
+- Release script updated to keep `Unreleased` section at the top consistently.
+
+### Added
+
+- Pull request template to guide contributors (ensures changelog fragment + checklist).
 
 ## 0.2.1 - 2025-09-04
 
