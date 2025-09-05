@@ -13,7 +13,7 @@ module.exports = [
     },
     plugins: { '@typescript-eslint': tsPlugin },
     rules: {
-      'eqeqeq': ['error', 'always'],
+      eqeqeq: ['error', 'always'],
       'no-console': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
     },
