@@ -10,6 +10,7 @@
  * Steps:
  * 1. Determine bump type (patch|minor|major)
  * 2. Verify clean git working tree
+ * 2a. Run Prettier formatting (will introduce changes if any)
  * 3. Bump version in package.json
  * 4. Generate/update CHANGELOG.md (prepends Unreleased -> new version section)
  * 5. Commit changes
@@ -46,6 +47,17 @@ function ensureCleanGit() {
   }
 }
 
+function runPrettier() {
+  console.log('Running Prettier formatting...');
+  try {
+    run('npm run format');
+  } catch (e) {
+    console.error('Prettier formatting failed.');
+    console.error(e.message || e);
+    process.exit(1);
+  }
+}
+
 function bumpVersion(version, type) {
   const [maj, min, pat] = version.split('.').map(Number);
   if (type === 'major') return `${maj + 1}.0.0`;
@@ -70,7 +82,10 @@ function updateChangelog(newVersion) {
   let text = readFileSync(changelogPath, 'utf8');
   // Ensure Unreleased section exists; if not, create placeholder at top
   if (!/## Unreleased/i.test(text)) {
-    text = text.replace(/# Changelog\n?/, '# Changelog\n\n## Unreleased\n- No unreleased changes.\n\n');
+    text = text.replace(
+      /# Changelog\n?/,
+      '# Changelog\n\n## Unreleased\n- No unreleased changes.\n\n',
+    );
   }
 
   const date = formatDate();
@@ -90,18 +105,25 @@ function updateChangelog(newVersion) {
   const newSection = `## ${newVersion} - ${date}\n${unreleasedBody}\n\n`;
 
   // Replace unreleased body with placeholder after release
-  const updated = text.replace(/## Unreleased\n([\s\S]*?)(?=\n## )/, '## Unreleased\n- No unreleased changes.\n\n$&')
-    // The above keeps original; simpler: rebuild from scratch below
+  const updated = text.replace(
+    /## Unreleased\n([\s\S]*?)(?=\n## )/,
+    '## Unreleased\n- No unreleased changes.\n\n$&',
+  );
+  // The above keeps original; simpler: rebuild from scratch below
 
   // Simpler approach: remove existing Unreleased block entirely then prepend new structure
-  const stripped = text.replace(/## Unreleased\n([\s\S]*?)(?=\n## )/i, '## Unreleased\n- No unreleased changes.\n');
+  const stripped = text.replace(
+    /## Unreleased\n([\s\S]*?)(?=\n## )/i,
+    '## Unreleased\n- No unreleased changes.\n',
+  );
 
   const finalText = stripped.replace(/(# Changelog\n+)/, `$1\n${newSection}`);
   writeFileSync(changelogPath, finalText.trimEnd() + '\n');
 }
 
 function gitCommitTagPush(newVersion) {
-  run('git add package.json CHANGELOG.md');
+  // Stage version + changelog + any formatting changes produced by Prettier
+  run('git add -u');
   run(`git commit -m "chore(release): v${newVersion}"`);
   run(`git tag v${newVersion}`);
   const currentBranch = run('git rev-parse --abbrev-ref HEAD');
@@ -112,6 +134,7 @@ function gitCommitTagPush(newVersion) {
 
 (function main() {
   ensureCleanGit();
+  runPrettier();
   const { newVersion } = updatePackageJson();
   updateChangelog(newVersion);
   gitCommitTagPush(newVersion);

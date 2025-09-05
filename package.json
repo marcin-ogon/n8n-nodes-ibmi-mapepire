@@ -18,12 +18,17 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc -p tsconfig.build.json && cp -f src/nodes/Mapepire/*.png dist/nodes/Mapepire/ 2>/dev/null || true",
     "dev": "tsc -w -p tsconfig.build.json",
     "lint": "eslint 'src/**/*.ts'",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "dev:n8n": "npm run build && N8N_CUSTOM_EXTENSIONS=dist npx n8n",
+    "dev:n8n:watch": "(npm run dev &) && sleep 2 && N8N_CUSTOM_EXTENSIONS=dist npx n8n",
     "release:patch": "node scripts/release.mjs patch",
     "release:minor": "node scripts/release.mjs minor",
     "release:major": "node scripts/release.mjs major"
@@ -36,17 +41,20 @@
   },
   "dependencies": {
     "@ibm/mapepire-js": "^0.6.0",
-    "n8n-workflow": "^1.82.0"
+    "n8n-workflow": "1.106.0"
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "@typescript-eslint/parser": "^8.42.0",
+    "prettier": "^3.3.3",
+    "n8n": "1.109.2",
     "eslint": "^9.34.0",
-    "n8n-core": "^1.47.0",
+    "n8n-core": "1.108.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "rimraf": "^5.0.5"
   },
   "n8n": {
     "n8nNodesApiVersion": 1,

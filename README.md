@@ -1,188 +1,123 @@
-# n8n-nodes-ibmi-mapepire
+# Mapepire IBM i Node for n8n
 
-Custom n8n community node to run IBM i Db2 SQL queries and CL commands through a Mapepire server using `@ibm/mapepire-js`.
+Run IBM i Db2 SQL queries and CL commands in n8n through a Mapepire server (`@ibm/mapepire-js`). Focused, fast, parameterized.
 
-## Features
-- Execute SQL queries with paging until completion
-- Run CL commands
-- Optionally return terse results
-- Auto-close queries when done
-- Support for self-signed certs or custom CA
-- Optional connection reuse per execution for performance
-- Prepared / parameterized SQL with JSON parameters
-- Toggle inclusion of metadata
-- Improved error capture with continueOnFail
+## What It Does
+
+- SQL query execution with automatic paging
+- CL command execution
+- Optional parameter binding via JSON (array or object)
+- Connection reuse toggle for bulk item performance
+- Include / exclude metadata & update counts
+- Optional terse output (rows only)
+- TLS: ignore self‑signed or provide custom CA
+- Structured errors when workflow uses continueOnFail
+
+## Quick Start
+
+1. Install deps & build
+
+```bash
+npm install
+npm run build
+```
+
+2. Launch n8n with this node:
+
+```bash
+# Fast path (build + run using dist/)
+npm run dev:n8n
+
+# Watch mode (rebuild on file save, then n8n runs with built code)
+npm run dev:n8n:watch
+
+# Manual (if you prefer explicit commands)
+npm run build
+N8N_CUSTOM_EXTENSIONS="$(pwd)/dist" npx n8n
+
+# If n8n installed globally instead of npx
+export N8N_CUSTOM_EXTENSIONS="$(pwd)/dist" && n8n start
+
+# Alternative: point at project root (package.json -> dist)
+N8N_CUSTOM_EXTENSIONS="$(pwd)" npx n8n
+
+# Classic link into a local n8n clone
+(cd /path/to/your/n8n && npm link n8n-nodes-ibmi-mapepire)
+```
+
+3. In n8n: add node named "Mapepire".
 
 ## Credentials
-Provide Mapepire connection details (host, port, user, password). Toggle `Ignore Unauthorized TLS` for self-signed certs or paste a CA certificate.
 
-## Development
-Install dependencies and build:
+Host, port, user, password. For TLS:
+
+- Ignore Unauthorized TLS: accept self‑signed
+- CA Certificate: paste PEM if you prefer validation
+
+## Using the Node
+
+Operation: choose SQL Query or CL Command.
+
+For SQL:
+
+- Query: your SQL (use placeholders supported by current `@ibm/mapepire-js` version)
+- Use Parameters: enable, then provide JSON
+  - Array example: `["ACME", 42]`
+  - Object example: `{ "CUST_ID": 42, "STATUS": "A" }`
+- Reuse Connection: speed up many input items with same creds
+- Include Metadata: disable for leaner output (rows only)
+- Terse Result: further trims auxiliary fields
+
+For CL: just supply the command text. Result returns completion info & messages.
+
+Errors: When continueOnFail is enabled, each item returns an `error` object instead of throwing.
+
+## Testing & Development
 
 ```bash
-npm install
-npm run build
-```
-
-Link into a local n8n for testing:
-
-```bash
-# Inside this project directory
-npm link
-# In your n8n installation directory
-npm link n8n-nodes-ibmi-mapepire
-```
-
-Restart n8n. The node appears as `Mapepire`.
-
-## Running n8n with this Node
-
-### Option 1: Use N8N_CUSTOM_EXTENSIONS (no npm link)
-```bash
-# From project root (ensure build done)
-npm run build
-
-# Run n8n immediately using npx
-N8N_CUSTOM_EXTENSIONS="$(pwd)" npx n8n
-# Or if n8n is globally installed:
-export N8N_CUSTOM_EXTENSIONS="$(pwd)"
-n8n start
-```
-
-### Option 2: Classic npm link (already shown above)
-After linking, just start n8n normally:
-```bash
-n8n start
-```
-
-### Option 3: Docker (ephemeral)
-```bash
-npm run build
-docker run -it --rm \
-  -p 5678:5678 \
-  -v ~/.n8n:/home/node/.n8n \
-  -v "$(pwd)":/data/custom-node \
-  -e N8N_CUSTOM_EXTENSIONS=/data/custom-node \
-  n8nio/n8n
-```
-
-### Option 4: docker-compose snippet
-```yaml
-services:
-  n8n:
-    image: n8nio/n8n:latest
-    ports:
-      - "5678:5678"
-    environment:
-      - N8N_CUSTOM_EXTENSIONS=/data/custom-node
-    volumes:
-      - ~/.n8n:/home/node/.n8n
-      - ./n8n-nodes-ibmi-mapepire:/data/custom-node
-```
-
-Then:
-```bash
-docker compose up
-```
-
-### Verify
-Open http://localhost:5678
-Create a new workflow
-Search for the node named: Mapepire
-
-If it does not appear:
-- Confirm build artifacts exist (dist folder)
-- Ensure environment variable path is correct
-- Restart n8n after changes
-
-## Testing
-
-Install deps and run:
-```bash
-npm install
-npm run test
-```
-
-Watch mode:
-```bash
+npm test          # Run Vitest suite
 npm run test:watch
 ```
 
-Tests use Vitest and mock the Mapepire SQLJob class to avoid real IBM i connections.
+Implementation mocks Mapepire classes—no live IBM i needed.
 
-## Changelog (summary)
-See CHANGELOG.md for details.
+### Code Style
 
-### Implemented Enhancements
-- Prepared statements / parameters (Additional Fields: Use Parameters + Parameters (JSON))
-- Reuse Connection option to keep a single SQLJob for all incoming items
-- Include Metadata toggle to reduce payload size
-- Improved error surface (structured error object when workflow uses continueOnFail)
-
-## Usage Notes
-### Parameters JSON
-Provide either an array or object:
-```
-["ACME", 42]
-```
-or
-```
-{"CUST_ID": 42, "STATUS": "A"}
-```
-The exact parameter binding semantics depend on @ibm/mapepire-js version; ensure your SQL uses the compatible placeholder style.
-
-### Reuse Connection
-Enable when many input items target the same credentials to reduce connection overhead. Connection closes automatically after the last item.
-
-### Metadata Toggle
-Disable Include Metadata to omit column metadata & update count for lighter outputs (rows only).
-
-## Continuous Integration
-GitHub Actions run lint, build, and tests on each push / PR. See `.github/workflows/ci.yml`.
-
-## Automated Releases & npm Publish
-Publishing flow:
-1. Update version in `package.json` (semver).
-2. Commit and push.
-3. Create and push a tag matching `vX.Y.Z` (must match package.json):
-   ```bash
-   git tag v0.2.1
-   git push origin v0.2.1
-   ```
-4. The `release.yml` workflow:
-   - Installs deps, builds, tests
-   - Publishes to npm (needs NPM_TOKEN secret)
-   - Creates a GitHub Release with autogenerated notes
-
-### Automated Release Workflow
-For consistent versioning and changelog maintenance, use the provided scripts (they will bump version, promote Unreleased notes, create a commit + tag, and push):
+This repo uses Prettier. Format all files before committing (release script enforces it):
 
 ```bash
-# Choose one semantic bump
+npm run format        # write changes
+npm run format:check  # verify only
+```
+
+## Releasing (Summary)
+
+Use semantic scripts (patch | minor | major):
+
+```bash
 npm run release:patch
-npm run release:minor
-npm run release:major
 ```
-This requires:
-- Clean git working tree
-- An existing `CHANGELOG.md` with an `## Unreleased` section (already present)
-- Push permissions
 
-After the tag is pushed (e.g. `v0.2.1`), the GitHub release workflow builds, tests, and publishes to npm.
+They bump version + tag; CI (with NPM_TOKEN secret) builds, tests, publishes. See `CHANGELOG.md` for history.
 
-Add your upcoming changes under the `## Unreleased` section. On release those entries are moved under a dated version heading and `Unreleased` is reset.
+## Troubleshooting
 
-### Setup (one-time)
-Add repository secret `NPM_TOKEN` with an npm automation / publish token:
-- Settings > Secrets and variables > Actions > New repository secret
+Node missing in n8n:
 
-Optional: enable npm provenance by ensuring the org allows it (Node 20+ already set in workflow).
+- Confirm `dist/` exists (rebuild if not)
+- Ensure `N8N_CUSTOM_EXTENSIONS` path is absolute & exported
+- Restart n8n after rebuilding
 
-### Dry Run
-To simulate locally:
-```bash
-npm pack
-```
+Parameter issues: verify placeholder style matches library version.
+
+TLS failures: try Ignore Unauthorized first; if that works, add proper CA.
 
 ## License
+
 MIT
+
+---
+
+Lean README version: detailed release & CI notes moved to history / scripts. Check `CHANGELOG.md` for full enhancement log.
+
+- Ensure environment variable path is correct
