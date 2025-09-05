@@ -12,7 +12,7 @@
  * 2. Verify clean git working tree
  * 2a. Run Prettier formatting (will introduce changes if any)
  * 3. Bump version in package.json
- * 4. Generate/update CHANGELOG.md (prepends Unreleased -> new version section)
+ * 4. Generate/update CHANGELOG.md (insert new version AFTER Unreleased; Unreleased always stays first)
  * 5. Commit changes
  * 6. Create git tag (vX.Y.Z)
  * 7. Push commit and tag
@@ -80,45 +80,53 @@ function formatDate(d = new Date()) {
 
 function updateChangelog(newVersion) {
   let text = readFileSync(changelogPath, 'utf8');
-  // Ensure Unreleased section exists; if not, create placeholder at top
+
+  // Guarantee base skeleton
   if (!/## Unreleased/i.test(text)) {
-    text = text.replace(
-      /# Changelog\n?/,
-      '# Changelog\n\n## Unreleased\n- No unreleased changes.\n\n',
-    );
+    if (!/# Changelog/.test(text)) {
+      text = '# Changelog\n\n## Unreleased\n- No unreleased changes.\n';
+    } else {
+      text = text.replace(
+        /# Changelog\n?/,
+        '# Changelog\n\n## Unreleased\n- No unreleased changes.\n\n',
+      );
+    }
   }
 
   const date = formatDate();
 
-  // Capture Unreleased section content (lines between '## Unreleased' and next '## ')
-  const unreleasedMatch = text.match(/## Unreleased\n([\s\S]*?)(?=\n## )/i);
-  let unreleasedBody = '';
-  if (unreleasedMatch) {
-    unreleasedBody = unreleasedMatch[1].trim();
+  // Extract sections
+  const unreleasedHeader = '## Unreleased\n';
+  const unreleasedIndex = text.indexOf(unreleasedHeader);
+  if (unreleasedIndex === -1) {
+    throw new Error('Could not locate Unreleased section after ensuring it exists.');
   }
 
-  // If unreleased empty or placeholder, set a default note
+  const afterUnreleased = text.slice(unreleasedIndex + unreleasedHeader.length);
+  const nextVersionHeadingRegex = /\n## \d+\.\d+\.\d+ - /; // heading starts with newline for safer split
+  const nextMatchIndex = afterUnreleased.search(nextVersionHeadingRegex);
+  let unreleasedBodyRaw;
+  let restVersions;
+  if (nextMatchIndex !== -1) {
+    unreleasedBodyRaw = afterUnreleased.slice(0, nextMatchIndex).trim();
+    restVersions = afterUnreleased.slice(nextMatchIndex + 1); // drop the leading newline we matched on
+  } else {
+    unreleasedBodyRaw = afterUnreleased.trim();
+    restVersions = '';
+  }
+
+  let unreleasedBody = unreleasedBodyRaw;
   if (!unreleasedBody || /No unreleased changes/i.test(unreleasedBody)) {
     unreleasedBody = '- Internal changes only.';
   }
 
-  const newSection = `## ${newVersion} - ${date}\n${unreleasedBody}\n\n`;
+  const newVersionSection = `## ${newVersion} - ${date}\n${unreleasedBody}\n\n`;
 
-  // Replace unreleased body with placeholder after release
-  const updated = text.replace(
-    /## Unreleased\n([\s\S]*?)(?=\n## )/,
-    '## Unreleased\n- No unreleased changes.\n\n$&',
-  );
-  // The above keeps original; simpler: rebuild from scratch below
-
-  // Simpler approach: remove existing Unreleased block entirely then prepend new structure
-  const stripped = text.replace(
-    /## Unreleased\n([\s\S]*?)(?=\n## )/i,
-    '## Unreleased\n- No unreleased changes.\n',
-  );
-
-  const finalText = stripped.replace(/(# Changelog\n+)/, `$1\n${newSection}`);
-  writeFileSync(changelogPath, finalText.trimEnd() + '\n');
+  // Reconstruct: keep everything before Unreleased header, then Unreleased placeholder, then new version, then previous versions
+  const prefix = text.slice(0, unreleasedIndex);
+  const placeholderUnreleased = '## Unreleased\n- No unreleased changes.\n\n';
+  const final = `${prefix}${placeholderUnreleased}${newVersionSection}${restVersions.trimStart()}`.trimEnd() + '\n';
+  writeFileSync(changelogPath, final);
 }
 
 function gitCommitTagPush(newVersion) {
