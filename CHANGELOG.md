@@ -1,12 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Refactored internal code structure for improved readability and maintainability (no user-facing behavior changes).
+- Added Prettier configuration and automatic formatting integration in release workflow to enforce consistent code style.
+
 ## 0.2.1 - 2025-09-04
 
 - Internal changes only.
-
-## Unreleased
-
-- No unreleased changes.
 
 ## 0.2.0 - 2025-09-04
 
