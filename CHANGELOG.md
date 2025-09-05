@@ -1,12 +1,5 @@
 # Changelog
 
-## 0.2.2 - 2025-09-05
-
-### Changed
-
-- Refactored internal code structure for improved readability and maintainability (no user-facing behavior changes).
-- Added Prettier configuration and automatic formatting integration in release workflow to enforce consistent code style.
-
 ## Unreleased
 - No unreleased changes.
 
@@ -19,6 +12,13 @@
 ### Added
 
 - Pull request template to guide contributors (ensures changelog fragment + checklist).
+
+## 0.2.2 - 2025-09-05
+
+### Changed
+
+- Refactored internal code structure for improved readability and maintainability (no user-facing behavior changes).
+- Added Prettier configuration and automatic formatting integration in release workflow to enforce consistent code style.
 
 ## 0.2.1 - 2025-09-04
 
