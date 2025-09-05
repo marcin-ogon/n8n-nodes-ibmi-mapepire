@@ -1,14 +1,16 @@
 # Changelog
 
-
 ## 0.2.2 - 2025-09-05
+
 ### Changed
 
 - Refactored internal code structure for improved readability and maintainability (no user-facing behavior changes).
 - Added Prettier configuration and automatic formatting integration in release workflow to enforce consistent code style.
 
 ## Unreleased
+- No unreleased changes.
 
+## 0.2.3 - 2025-09-05
 ### Changed
 
 - Release workflow now generates GitHub Release notes directly from matching section in `CHANGELOG.md`.

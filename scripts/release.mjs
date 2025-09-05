@@ -125,7 +125,9 @@ function updateChangelog(newVersion) {
   // Reconstruct: keep everything before Unreleased header, then Unreleased placeholder, then new version, then previous versions
   const prefix = text.slice(0, unreleasedIndex);
   const placeholderUnreleased = '## Unreleased\n- No unreleased changes.\n\n';
-  const final = `${prefix}${placeholderUnreleased}${newVersionSection}${restVersions.trimStart()}`.trimEnd() + '\n';
+  const final =
+    `${prefix}${placeholderUnreleased}${newVersionSection}${restVersions.trimStart()}`.trimEnd() +
+    '\n';
   writeFileSync(changelogPath, final);
 }
 

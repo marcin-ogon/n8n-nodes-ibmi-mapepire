@@ -58,6 +58,6 @@ jobs:
       - name: Create GitHub Release (from changelog)
         uses: softprops/action-gh-release@v2
         with:
-            body_path: RELEASE_NOTES.md
-            draft: false
-            prerelease: false
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
