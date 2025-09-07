@@ -1,9 +1,10 @@
 # Changelog
 
 ## Unreleased
-- No unreleased changes.
+
 
 ## 0.2.3 - 2025-09-05
+
 ### Changed
 
 - Release workflow now generates GitHub Release notes directly from matching section in `CHANGELOG.md`.
