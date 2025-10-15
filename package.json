@@ -36,9 +36,6 @@
   "files": [
     "dist"
   ],
-  "engines": {
-    "node": ">=18"
-  },
   "dependencies": {
     "@ibm/mapepire-js": "^0.6.0",
     "n8n-workflow": "^1.113.0"
@@ -48,7 +45,6 @@
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
     "eslint": "^9.37.0",
-    "n8n-core": "^1.115.0",
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.3",

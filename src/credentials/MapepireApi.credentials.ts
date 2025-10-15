@@ -8,7 +8,9 @@ export class MapepireApi implements ICredentialType {
   name = 'mapepireApi';
   displayName = 'Mapepire Server';
   // Reuse the same logo as the node. Path is relative to compiled dist credentials file location.
-  icon: string = 'file:../nodes/Mapepire/mapepire-logo.png';
+  // Type cast to any to satisfy ICredentialType without importing the non-exported Icon type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon: any = 'file:../nodes/Mapepire/mapepire-logo.png';
 
   // Ordered list of fields the user must supply.
   properties: INodeProperties[] = [
