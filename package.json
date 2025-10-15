@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-ibmi-mapepire",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "n8n community nodes to run IBM i SQL and CL commands via Mapepire",
   "keywords": [
     "n8n",
@@ -41,34 +41,27 @@
   },
   "dependencies": {
     "@ibm/mapepire-js": "^0.6.0",
-    "n8n-workflow": "1.106.0"
+    "n8n-workflow": "^1.113.0"
   },
   "devDependencies": {
-    "@types/node": "^24.3.1",
-    "@typescript-eslint/eslint-plugin": "^8.42.0",
-    "@typescript-eslint/parser": "^8.42.0",
-    "prettier": "^3.3.3",
-    "n8n": "1.109.2",
-    "eslint": "^9.34.0",
-    "n8n-core": "1.108.0",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.4",
-    "vitest": "^3.2.4",
-    "rimraf": "^5.0.5"
+    "@types/node": "^24.7.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
+    "eslint": "^9.37.0",
+    "n8n-core": "^1.115.0",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.10",
+    "vitest": "^3.2.4"
   },
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      {
-        "name": "mapepireCredentials",
-        "type": "mapepireApi"
-      }
+      "dist/credentials/MapepireApi.credentials.js"
     ],
     "nodes": [
-      {
-        "name": "Mapepire",
-        "type": "mapepireNode"
-      }
+      "dist/nodes/Mapepire/Mapepire.node.js"
     ]
   },
   "publishConfig": {

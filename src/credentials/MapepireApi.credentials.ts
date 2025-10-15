@@ -1,4 +1,4 @@
-import type { ICredentialType, INodeProperties, Icon } from 'n8n-workflow';
+import type { ICredentialType, INodeProperties } from 'n8n-workflow';
 
 /**
  * Mapepire server connection definition exposed to n8n.
@@ -8,7 +8,7 @@ export class MapepireApi implements ICredentialType {
   name = 'mapepireApi';
   displayName = 'Mapepire Server';
   // Reuse the same logo as the node. Path is relative to compiled dist credentials file location.
-  icon: Icon = 'file:../nodes/Mapepire/mapepire-logo.png';
+  icon: string = 'file:../nodes/Mapepire/mapepire-logo.png';
 
   // Ordered list of fields the user must supply.
   properties: INodeProperties[] = [

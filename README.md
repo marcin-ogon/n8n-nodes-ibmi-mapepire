@@ -47,6 +47,43 @@ N8N_CUSTOM_EXTENSIONS="$(pwd)" npx n8n
 
 3. In n8n: add node named "Mapepire".
 
+## Docker Compose
+
+If you run n8n in Docker, mount the built extension and point n8n at it:
+
+```yaml
+services:
+  n8n:
+    image: n8nio/n8n:1.109.2
+    environment:
+      - N8N_CUSTOM_EXTENSIONS=/extensions/n8n-nodes-ibmi-mapepire
+    volumes:
+      - ./dist:/extensions/n8n-nodes-ibmi-mapepire:ro
+    ports:
+      - "5678:5678"
+```
+
+Steps:
+
+- Build locally first: `npm run build` (generates `dist/`)
+- Start compose; n8n will load the extension from `/extensions/...` inside the container
+
+If you previously installed this package via n8n’s Community Packages UI/ENV and see loader errors, remove the cached install inside the container and restart:
+
+```bash
+docker exec -it <container-name> bash -lc 'rm -rf /home/node/.n8n/node_modules/n8n-nodes-ibmi-mapepire && exit'
+docker compose restart n8n
+```
+
+Alternatively, if you prefer n8n to install from npm at startup, set:
+
+```yaml
+environment:
+  - N8N_COMMUNITY_PACKAGES=n8n-nodes-ibmi-mapepire@^0.2.4
+```
+
+Note: when installing from npm, ensure you’re using a version containing the latest manifest fixes.
+
 ## Credentials
 
 Host, port, user, password. For TLS:
