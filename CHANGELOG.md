@@ -3,7 +3,11 @@
 ## Unreleased
 - No unreleased changes.
 
+## 0.2.6 - 2025-10-15
+- Internal changes only.
+
 ## 0.2.5 - 2025-10-15
+
 ### Added
 
 - .npmignore to exclude development files and test artifacts from npm packages.
