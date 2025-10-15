@@ -9,9 +9,9 @@
 ### Tests
 
 - Implemented tests for the Mapepire node and its credentials:
-    - Unit tests for node behavior, input/output handling, and error cases.
-    - Credential tests verifying authentication flows and validation.
-    - Test fixtures and CI integration to run tests on push and pull requests.
+  - Unit tests for node behavior, input/output handling, and error cases.
+  - Credential tests verifying authentication flows and validation.
+  - Test fixtures and CI integration to run tests on push and pull requests.
 - Updated test-related scripts and configuration to support running the new suites.
 
 ## 0.2.3 - 2025-09-05

@@ -60,7 +60,7 @@ services:
     volumes:
       - ./dist:/extensions/n8n-nodes-ibmi-mapepire:ro
     ports:
-      - "5678:5678"
+      - '5678:5678'
 ```
 
 Steps:
