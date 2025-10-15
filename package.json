@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-ibmi-mapepire",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "n8n community nodes to run IBM i SQL and CL commands via Mapepire",
   "keywords": [
     "n8n",
