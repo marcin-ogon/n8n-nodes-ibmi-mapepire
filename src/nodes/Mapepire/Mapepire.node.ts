@@ -33,6 +33,7 @@ export class Mapepire implements INodeType {
     defaults: {
       name: 'Mapepire',
     },
+    usableAsTool: true,
     inputs: ['main'],
     outputs: ['main'],
     credentials: [{ name: 'mapepireApi', required: true }],
