@@ -1,11 +1,15 @@
 # Changelog
 
 ## Unreleased
+- No unreleased changes.
+
+## 0.3.1 - 2026-06-12
 - Refreshed project dependencies and tooling to newer versions, including the Mapepire and n8n runtime libraries plus the TypeScript, ESLint, Vite, and Vitest toolchain.
 - Updated TypeScript build settings for a cleaner src-based build layout and modern module resolution.
 - Upgraded CI and release automation to use Node.js 24 and the current GitHub Actions versions for checkout and Node setup.
 
 ## 0.3.0 - 2026-06-12
+
 - Internal changes only.
 
 ## 0.2.6 - 2025-10-15
