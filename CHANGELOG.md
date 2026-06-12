@@ -3,7 +3,11 @@
 ## Unreleased
 - No unreleased changes.
 
+## 0.3.0 - 2026-06-12
+- Internal changes only.
+
 ## 0.2.6 - 2025-10-15
+
 - Internal changes only.
 
 ## 0.2.5 - 2025-10-15
