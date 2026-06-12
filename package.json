@@ -38,19 +38,19 @@
     "dist"
   ],
   "dependencies": {
-    "@ibm/mapepire-js": "^0.6.0",
-    "n8n-workflow": "^1.113.0"
+    "@ibm/mapepire-js": "^0.6.1",
+    "n8n-workflow": "^2.16.0"
   },
   "devDependencies": {
-    "@types/node": "^24.7.2",
-    "@typescript-eslint/eslint-plugin": "^8.46.1",
-    "@typescript-eslint/parser": "^8.46.1",
-    "eslint": "^9.37.0",
-    "prettier": "^3.6.2",
-    "rimraf": "^6.0.1",
-    "typescript": "^5.9.3",
-    "vite": "^7.1.10",
-    "vitest": "^3.2.4"
+    "@types/node": "^25.9.3",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "eslint": "^10.4.1",
+    "prettier": "^3.8.4",
+    "rimraf": "^6.1.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8"
   },
   "n8n": {
     "n8nNodesApiVersion": 1,
